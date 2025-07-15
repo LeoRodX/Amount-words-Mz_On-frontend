@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сумма прописью | Сбер стиль</title>
+    <link href="https://fonts.googleapis.com/css2?family=SB+Sans+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --sber-primary: #21A038;
+            --sber-primary-dark: #1A832D;
+            --sber-light: #F5F7F6;
+            --sber-white: #FFFFFF;
+            --sber-text: #222222;
+            --sber-gray: #E5E5E5;
+            --sber-dark-gray: #999999;
+        }
+        
+        body {
+            font-family: 'SB Sans Display', Arial, sans-serif;
+            background-color: var(--sber-light);
+            color: var(--sber-text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: var(--sber-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .logo i {
+            color: white;
+            font-size: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--sber-primary-dark);
+        }
+        
+        .card {
+            background-color: var(--sber-white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--sber-dark-gray);
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--sber-gray);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--sber-primary);
+        }
+        
+        .btn {
+            background-color: var(--sber-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--sber-primary-dark);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .result-card {
+            background-color: var(--sber-white);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--sber-gray);
+            position: relative;
+        }
+        
+        .result-text {
+            padding-right: 40px;
+            font-size: 15px;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            background-color: var(--sber-light);
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--sber-primary);
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--sber-primary);
+            color: white;
+        }
+        
+        .tax-info {
+            font-size: 13px;
+            color: var(--sber-dark-gray);
+            margin-top: 4px;
+        }
+        
+        .error {
+            color: #E53935;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--sber-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-ruble-sign"></i>
+            </div>
+            <h1>Сумма прописью</h1>
+        </div>
+        
+        <div class="card">
+            <div class="input-group">
+                <label for="amount">Сумма</label>
+                <input type="number" id="amount" placeholder="Введите сумму, например: 1234.56" step="0.01" min="0">
+                <div id="amount-error" class="error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label for="tax">Налог</label>
+                <select id="tax">
+                    <option value="0">Без налога</option>
+                    <option value="20" selected>НДС 20%</option>
+                    <option value="10">НДС 10%</option>
+                    <option value="7">НДС 7%</option>
+                    <option value="5">НДС 5%</option>
+                    <option value="0">НДС 0%</option>
+                    <option value="13">НДФЛ 13%</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="convertToWords()">
+                <i class="fas fa-exchange-alt"></i>
+                Преобразовать
+            </button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <div class="success-message" id="success-message">Скопировано в буфер обмена</div>
+
+    <script>
+        function convertToWords() {
+            const amountInput = document.getElementById('amount');
+            const taxSelect = document.getElementById('tax');
+            const errorDiv = document.getElementById('amount-error');
+            const resultsDiv = document.getElementById('results');
+            
+            // Очищаем предыдущие результаты и ошибки
+            resultsDiv.innerHTML = '';
+            errorDiv.style.display = 'none';
+            
+            // Проверяем, что введено значение
+            if (!amountInput.value) {
+                errorDiv.textContent = 'Пожалуйста, введите сумму';
+                errorDiv.style.display = 'block';
+                amountInput.focus();
+                return;
+            }
+            
+            const amount = parseFloat(amountInput.value);
+            
+            // Проверяем, что сумма положительная
+            if (amount <= 0) {
+                errorDiv.textContent = 'Сумма должна быть положительной';
+                errorDiv.style.display = 'block';
+                amountInput.focus();
+                return;
+            }
+            
+            const taxRate = parseFloat(taxSelect.value);
+            const taxName = taxSelect.options[taxSelect.selectedIndex].text;
+            
+            // Рассчитываем налог и сумму без налога
+            let taxAmount = 0;
+            let amountWithoutTax = amount;
+            
+            if (taxRate > 0) {
+                taxAmount = amount * taxRate / (100 + taxRate);
+                amountWithoutTax = amount - taxAmount;
+            }
+            
+            // Преобразуем суммы в пропись
+            try {
+                const amountInWords = numberToWords(amount);
+                const amountWithoutTaxInWords = taxRate > 0 ? numberToWords(amountWithoutTax) : '';
+                const taxAmountInWords = taxRate > 0 ? numberToWords(taxAmount) : '';
+                
+                // Формируем варианты вывода
+                const variants = [
+                    { 
+                        title: "Прописью", 
+                        text: amountInWords.toLowerCase().replace('коп.', 'копеек') 
+                    },
+                    { 
+                        title: "С заглавной буквы", 
+                        text: capitalizeFirstLetter(amountInWords).replace('коп.', 'копеек') 
+                    }
+                ];
+                
+                if (taxRate > 0) {
+                    variants.push(
+                        { 
+                            title: "С налогом", 
+                            text: `${amountInWords.toLowerCase().replace('коп.', 'копеек')}, в т.ч. ${taxName} ${taxAmount.toFixed(2)} руб.` 
+                        },
+                        { 
+                            title: "С налогом прописью", 
+                            text: `${amountInWords.toLowerCase().replace('коп.', 'копеек')}, в т.ч. ${taxName} ${taxAmount.toFixed(2)} руб. (${taxAmountInWords.toLowerCase()})` 
+                        },
+                        { 
+                            title: "Комбинированный", 
+                            text: `${amount.toFixed(2)} руб. (${amountInWords.toLowerCase().replace('коп.', 'копеек')}), в т.ч. ${taxName} ${taxAmount.toFixed(2)} руб. (${taxAmountInWords.toLowerCase()})` 
+                        },
+                        { 
+                            title: "Официальный", 
+                            text: `${amount.toFixed(2)} руб. (${capitalizeFirstLetter(amountInWords).replace('коп.', 'копеек')}), в т.ч. ${taxName} ${taxAmount.toFixed(2)} руб. (${capitalizeFirstLetter(taxAmountInWords)})` 
+                        }
+                    );
+                }
+                
+                // Выводим все варианты
+                variants.forEach((variant, index) => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+                    resultCard.innerHTML = `
+                        <div class="result-text">
+                            <strong>${variant.title}</strong><br>
+                            ${variant.text}
+                            ${taxRate > 0 ? `<div class="tax-info">Сумма без ${taxName}: ${amountWithoutTax.toFixed(2)} руб.</div>` : ''}
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard(this, '${escapeHtml(variant.text)}')">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    `;
+                    resultsDiv.appendChild(resultCard);
+                });
+                
+            } catch (e) {
+                errorDiv.textContent = 'Произошла ошибка при преобразовании';
+                errorDiv.style.display = 'block';
+                console.error(e);
+            }
+        }
+        
+        function numberToWords(num) {
+            // Разделяем число на рубли и копейки
+            const rub = Math.floor(num);
+            const kop = Math.round((num - rub) * 100);
+            
+            // Преобразуем рубли и копейки в текст
+            const rubText = numToWords(rub, true);
+            const kopText = kop > 0 ? numToWords(kop, false) : '00';
+            
+            // Формируем результат
+            let result = rubText + ' ' + rublej(rub);
+            if (kop > 0) {
+                result += ' ' + kopText + ' ' + kopeek(kop);
+            } else {
+                result += ' 00 коп.';
+            }
+            
+            return result;
+        }
+        
+        function numToWords(num, isRub) {
+            const units = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+            const unitsFemale = ['', 'одна', 'две', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+            const teens = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 
+                          'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+            const tens = ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 
+                          'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+            const hundreds = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 
+                              'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+            
+            const scales = [
+                ['', '', ''],
+                ['тысяча', 'тысячи', 'тысяч'],
+                ['миллион', 'миллиона', 'миллионов'],
+                ['миллиард', 'миллиарда', 'миллиардов'],
+                ['триллион', 'триллиона', 'триллионов']
+            ];
+            
+            if (num === 0) return 'ноль';
+            
+            let words = [];
+            let scaleIndex = 0;
+            let originalNum = num;
+            
+            while (num > 0) {
+                const chunk = num % 1000;
+                num = Math.floor(num / 1000);
+                
+                if (chunk !== 0) {
+                    let chunkWords = [];
+                    
+                    // Сотни
+                    const hundred = Math.floor(chunk / 100);
+                    if (hundred > 0) {
+                        chunkWords.push(hundreds[hundred]);
+                    }
+                    
+                    // Десятки и единицы
+                    const remainder = chunk % 100;
+                    if (remainder < 10) {
+                        const unit = isRub || scaleIndex !== 1 ? units[remainder] : unitsFemale[remainder];
+                        if (unit) chunkWords.push(unit);
+                    } else if (remainder < 20) {
+                        chunkWords.push(teens[remainder - 10]);
+                    } else {
+                        const ten = Math.floor(remainder / 10);
+                        const unit = remainder % 10;
+                        chunkWords.push(tens[ten]);
+                        if (unit > 0) {
+                            const unitWord = isRub || scaleIndex !== 1 ? units[unit] : unitsFemale[unit];
+                            chunkWords.push(unitWord);
+                        }
+                    }
+                    
+                    // Добавляем масштаб (тысячи, миллионы и т.д.)
+                    if (scaleIndex > 0) {
+                        const scaleForms = scales[scaleIndex];
+                        const scaleWord = getScaleWord(chunk, scaleForms);
+                        chunkWords.push(scaleWord);
+                    }
+                    
+                    words.unshift(chunkWords.join(' '));
+                }
+                
+                scaleIndex++;
+            }
+            
+            return words.join(' ');
+        }
+        
+        function getScaleWord(num, forms) {
+            const lastTwo = num % 100;
+            const lastOne = num % 10;
+            
+            if (lastTwo >= 11 && lastTwo <= 19) {
+                return forms[2];
+            }
+            
+            switch (lastOne) {
+                case 1: return forms[0];
+                case 2:
+                case 3:
+                case 4: return forms[1];
+                default: return forms[2];
+            }
+        }
+        
+        function rublej(num) {
+            const lastTwo = num % 100;
+            const lastOne = num % 10;
+            
+            if (lastTwo >= 11 && lastTwo <= 19) {
+                return 'рублей';
+            }
+            
+            switch (lastOne) {
+                case 1: return 'рубль';
+                case 2:
+                case 3:
+                case 4: return 'рубля';
+                default: return 'рублей';
+            }
+        }
+        
+        function kopeek(num) {
+            const lastTwo = num % 100;
+            const lastOne = num % 10;
+            
+            if (lastTwo >= 11 && lastTwo <= 19) {
+                return 'копеек';
+            }
+            
+            switch (lastOne) {
+                case 1: return 'копейка';
+                case 2:
+                case 3:
+                case 4: return 'копейки';
+                default: return 'копеек';
+            }
+        }
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccessMessage();
+                
+                // Анимация кнопки
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.style.backgroundColor = 'var(--sber-primary)';
+                button.style.color = 'white';
+                
+                setTimeout(() => {
+                    button.innerHTML = '<i class="far fa-copy"></i>';
+                    button.style.backgroundColor = 'var(--sber-light)';
+                    button.style.color = 'var(--sber-primary)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка при копировании: ', err);
+            });
+        }
+        
+        function showSuccessMessage() {
+            const message = document.getElementById('success-message');
+            message.style.opacity = '1';
+            
+            setTimeout(() => {
+                message.style.opacity = '0';
+            }, 2000);
+        }
+        
+        // Автоматический расчет при нажатии Enter
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertToWords();
+            }
+        });
+    </script>
+</body>
+</html>
